@@ -27,7 +27,7 @@
 class Store_firstname_lastname_ext {
 	
 	public $settings 		= array();
-	public $description		= 'Combines the first two Order Fields in the Store cart (order_custom1 & order_custom2) into the shipping_name value.';
+	public $description		= 'Combines the first two Order Fields in the Store cart (order_custom1 & order_custom2) into the billing_name value.';
 	public $docs_url		= 'http://rog.ee';
 	public $name			= 'Store: Firstname/Lastname';
 	public $settings_exist	= 'n';
@@ -87,15 +87,27 @@ class Store_firstname_lastname_ext {
 	public function process_shipping_name($cart_contents)
 	{
 		
+		if ($this->EE->extensions->last_call)
+		{
+			$cart_contents = $this->EE->extensions->last_call;
+		}
+		
 		// firstname field
 		$firstname = $this->EE->input->post('order_custom1');
-		
+	
 		// lastname field = ""
-		$lastname == $this->EE->input->post('order_custom2');
+		$lastname = $this->EE->input->post('order_custom2');
 		
 		if ($firstname !== FALSE && $lastname !== FALSE)
 		{
-			$cart_contents["shipping_name"] = $firstname . " " . $lastname;
+		
+			$cart_contents["billing_name"] = $firstname . " " . $lastname;
+			
+			if ($cart_contents["shipping_same_as_billing"])
+			{
+				$cart_contents["shipping_name"] = $cart_contents["billing_name"];
+			}		
+		
 		}
 		
 		return $cart_contents;
