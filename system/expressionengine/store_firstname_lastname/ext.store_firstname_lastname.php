@@ -27,11 +27,11 @@
 class Store_firstname_lastname_ext {
 	
 	public $settings 		= array();
-	public $description		= 'Combines the first two Order Fields in the Store cart (order_custom1 & order_custom2) into the shipping_name value.';
+	public $description		= 'Combines the first two Order Fields in the Store cart (order_custom1 & order_custom2) into the billing_name value.';
 	public $docs_url		= 'http://rog.ee';
 	public $name			= 'Store: Firstname/Lastname';
 	public $settings_exist	= 'n';
-	public $version			= '0.0.0';
+	public $version			= '0.1.0';
 	
 	private $EE;
 	
@@ -65,7 +65,7 @@ class Store_firstname_lastname_ext {
 		
 		$data = array(
 			'class'		=> __CLASS__,
-			'method'	=> 'process_shipping_name',
+			'method'	=> 'process_billing_name',
 			'hook'		=> 'store_cart_update_end',
 			'settings'	=> serialize($this->settings),
 			'version'	=> $this->version,
@@ -84,18 +84,30 @@ class Store_firstname_lastname_ext {
 	 * @param 
 	 * @return 
 	 */
-	public function process_shipping_name($cart_contents)
+	public function process_billing_name($cart_contents)
 	{
+		
+		if ($this->EE->extensions->last_call)
+		{
+			$cart_contents = $this->EE->extensions->last_call;
+		}
 		
 		// firstname field
 		$firstname = $this->EE->input->post('order_custom1');
-		
-		// lastname field = ""
-		$lastname == $this->EE->input->post('order_custom2');
+	
+		// lastname field
+		$lastname = $this->EE->input->post('order_custom2');
 		
 		if ($firstname !== FALSE && $lastname !== FALSE)
 		{
-			$cart_contents["shipping_name"] = $firstname . " " . $lastname;
+		
+			$cart_contents["billing_name"] = $firstname . " " . $lastname;
+			
+			if ($cart_contents["shipping_same_as_billing"])
+			{
+				$cart_contents["shipping_name"] = $cart_contents["billing_name"];
+			}		
+		
 		}
 		
 		return $cart_contents;
@@ -132,6 +144,11 @@ class Store_firstname_lastname_ext {
 		if ($current == '' OR $current == $this->version)
 		{
 			return FALSE;
+		}
+		else
+		{
+			$this->disable_extension();
+			$this->activate_extension();
 		}
 	}	
 	
