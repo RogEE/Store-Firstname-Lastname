@@ -31,7 +31,7 @@ class Store_firstname_lastname_ext {
 	public $docs_url		= 'http://rog.ee';
 	public $name			= 'Store: Firstname/Lastname';
 	public $settings_exist	= 'n';
-	public $version			= '0.0.0';
+	public $version			= '0.1.0';
 	
 	private $EE;
 	
@@ -65,7 +65,7 @@ class Store_firstname_lastname_ext {
 		
 		$data = array(
 			'class'		=> __CLASS__,
-			'method'	=> 'process_shipping_name',
+			'method'	=> 'process_billing_name',
 			'hook'		=> 'store_cart_update_end',
 			'settings'	=> serialize($this->settings),
 			'version'	=> $this->version,
@@ -84,7 +84,7 @@ class Store_firstname_lastname_ext {
 	 * @param 
 	 * @return 
 	 */
-	public function process_shipping_name($cart_contents)
+	public function process_billing_name($cart_contents)
 	{
 		
 		if ($this->EE->extensions->last_call)
@@ -95,7 +95,7 @@ class Store_firstname_lastname_ext {
 		// firstname field
 		$firstname = $this->EE->input->post('order_custom1');
 	
-		// lastname field = ""
+		// lastname field
 		$lastname = $this->EE->input->post('order_custom2');
 		
 		if ($firstname !== FALSE && $lastname !== FALSE)
@@ -144,6 +144,11 @@ class Store_firstname_lastname_ext {
 		if ($current == '' OR $current == $this->version)
 		{
 			return FALSE;
+		}
+		else
+		{
+			$this->disable_extension();
+			$this->activate_extension();
 		}
 	}	
 	
